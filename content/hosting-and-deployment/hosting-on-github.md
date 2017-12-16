@@ -64,12 +64,12 @@ You can also tell GitHub pages to treat your `master` branch as the published si
 
 These steps only need to be done once. Replace `upstream` with the name of your remote; e.g., `origin`:
 
-#### Add the Public Folder
+#### Add the Docs Folder
 
-First, add the `public` folder to your `.gitignore` file at the project root so that the directory is ignored on the master branch:
+First, add the `docs` folder to your `.gitignore` file at the project root so that the directory is ignored on the master branch:
 
 ```
-echo "public" >> .gitignore
+echo "docs" >> .gitignore
 ```
 
 #### Initialize Your `gh-pages` Branch
@@ -86,18 +86,18 @@ git checkout master
 
 ### Build and Deployment
 
-Now check out the `gh-pages` branch into your `public` folder using git's [worktree feature][]. Essentially, the worktree allows you to have multiple branches of the same local repository to be checked out in different directories:
+Now check out the `gh-pages` branch into your `docs` folder using git's [worktree feature][]. Essentially, the worktree allows you to have multiple branches of the same local repository to be checked out in different directories:
 
 ```
-rm -rf public
-git worktree add -B gh-pages public upstream/gh-pages
+rm -rf docs
+git worktree add -B gh-pages docs upstream/gh-pages
 ```
 
 Regenerate the site using the `hugo` command and commit the generated files on the `gh-pages` branch:
 
 {{< code file="commit-gh-pages-files.sh">}}
 hugo
-cd public && git add --all && git commit -m "Publishing to gh-pages" && cd ..
+cd docs && git add --all && git commit -m "Publishing to gh-pages" && cd ..
 {{< /code >}}
 
 If the changes in your local `gh-pages` branch look alright, push them to the remote repo:
@@ -133,29 +133,29 @@ then
 fi
 
 echo "Deleting old publication"
-rm -rf public
-mkdir public
+rm -rf docs
+mkdir docs
 git worktree prune
-rm -rf .git/worktrees/public/
+rm -rf .git/worktrees/docs/
 
-echo "Checking out gh-pages branch into public"
-git worktree add -B gh-pages public upstream/gh-pages
+echo "Checking out gh-pages branch into docs"
+git worktree add -B gh-pages docs upstream/gh-pages
 
 echo "Removing existing files"
-rm -rf public/*
+rm -rf docs/*
 
 echo "Generating site"
 hugo
 
 echo "Updating gh-pages branch"
-cd public && git add --all && git commit -m "Publishing to gh-pages (publish.sh)"
+cd docs && git add --all && git commit -m "Publishing to gh-pages (publish.sh)"
 {{< /code >}}
 
 This will abort if there are pending changes in the working directory and also makes sure that all previously existing output files are removed. Adjust the script to taste, e.g. to include the final push to the remote repository if you don't need to take a look at the gh-pages branch before pushing. Or adding `echo yourdomainname.com >> CNAME` if you set up for your gh-pages to use customize domain.
 
 ## Deployment From Your `master` Branch
 
-To use `master` as your publishing branch, you'll need your rendered website to live at the root of the GitHub repository. Steps should be similar to that of the `gh-pages` branch, with the exception that you will create your GitHub repository with the `public` directory as the root. Note that this does not provide the same benefits of the `gh-pages` branch in keeping your source and output in separate, but version controlled, branches within the same repo.
+To use `master` as your publishing branch, you'll need your rendered website to live at the root of the GitHub repository. Steps should be similar to that of the `gh-pages` branch, with the exception that you will create your GitHub repository with the `docs` directory as the root. Note that this does not provide the same benefits of the `gh-pages` branch in keeping your source and output in separate, but version controlled, branches within the same repo.
 
 You will also need to set `master` as your publishable branch from within the GitHub UI:
 
@@ -169,7 +169,7 @@ As mentioned [in this GitHub Help article](https://help.github.com/articles/user
 1. You must use the `<USERNAME>.github.io` naming scheme for your GitHub repo.
 2. Content from the `master` branch will be used to publish your GitHub Pages site.
 
-It becomes much simpler in this case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `public` folder's content in it.
+It becomes much simpler in this case: we'll create two separate repos, one for Hugo's content, and a git submodule with the `docs` folder's content in it.
 
 ### Step-by-step Instructions
 
@@ -179,8 +179,8 @@ It becomes much simpler in this case: we'll create two separate repos, one for H
 4. Make your website work locally (`hugo server` or `hugo server -t <YOURTHEME>`) and open your browser to <http://localhost:1313>.
 5. Once you are happy with the results:
     * Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to kill the server
-    * `rm -rf public` to completely remove the `public` directory if there
-6. `git submodule add -b master git@github.com:<USERNAME>/<USERNAME>.github.io.git public`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `public`, the created `public` directory will have a different remote origin (i.e. hosted GitHub repository). You can automate some of these steps with the following script.
+    * `rm -rf docs` to completely remove the `docs` directory if there
+6. `git submodule add -b master git@github.com:<USERNAME>/<USERNAME>.github.io.git docs`. This creates a git [submodule][]. Now when you run the `hugo` command to build your site to `docs`, the created `docs` directory will have a different remote origin (i.e. hosted GitHub repository). You can automate some of these steps with the following script.
 
 #### Put it Into a Script
 
@@ -196,8 +196,8 @@ echo -e "\033[0;32mDeploying updates to GitHub...\033[0m"
 # Build the project.
 hugo # if using a theme, replace with `hugo -t <YOURTHEME>`
 
-# Go To Public folder
-cd public
+# Go To Docs folder
+cd docs
 # Add changes to git.
 git add .
 
